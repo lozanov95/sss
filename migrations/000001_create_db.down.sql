@@ -1,0 +1,2 @@
+DROP INDEX IF EXISTS key_idx;
+DROP TABLE IF EXISTS secrets;
