@@ -20,7 +20,7 @@ func NewModels(db *sql.DB, encryptionKey string) Models {
 	// Cleaning up expired secrets each minute
 	go func(secretModel *SecretModel) {
 		for {
-			<-time.After(1 * time.Minute)
+			time.Sleep(1 * time.Minute)
 			secretModel.CleanupExpired()
 		}
 	}(&secretModel)
