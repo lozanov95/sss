@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -18,7 +19,7 @@ var (
 	ErrorSecretNotFound = errors.New("secret not found")
 )
 
-func (app *application) getSecretHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) extractSecretHandler(w http.ResponseWriter, r *http.Request) {
 	params := httprouter.ParamsFromContext(r.Context())
 	id := params.ByName("id")
 
@@ -30,9 +31,27 @@ func (app *application) getSecretHandler(w http.ResponseWriter, r *http.Request)
 	}
 
 	if len(secret.Passphrase) != 0 {
-		pass := r.URL.Query().Get("p")
+		var input struct {
+			Passphrase string `json:"passphrase"`
+		}
 
-		if !verifyPassword(secret.Passphrase, pass) {
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			w.WriteHeader(http.StatusForbidden)
+			fmt.Fprintf(w, "missing/invalid passphrase")
+			return
+		}
+		defer r.Body.Close()
+
+		err = json.Unmarshal(body, &input)
+		if err != nil {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Println(err)
+			fmt.Fprintf(w, "failed to parse passphrase")
+			return
+		}
+
+		if !verifyPassword(secret.Passphrase, input.Passphrase) {
 			w.WriteHeader(http.StatusForbidden)
 			fmt.Fprintf(w, "missing/invalid passphrase")
 			return

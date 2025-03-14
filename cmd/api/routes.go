@@ -13,7 +13,7 @@ func (app *application) routes() http.Handler {
 
 	router.NotFound = http.HandlerFunc(app.notFoundResponse)
 
-	router.HandlerFunc(http.MethodGet, "/v1/secrets/:id", app.getSecretHandler)
+	router.HandlerFunc(http.MethodPut, "/v1/secrets/:id", app.extractSecretHandler)
 	router.HandlerFunc(http.MethodPost, "/v1/secrets", app.createSecretHandler)
 
 	return app.recoverPanic(app.rateLimit(router))
