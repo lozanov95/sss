@@ -4,7 +4,12 @@ DSN := "postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}/${POST
 .SILENT:
 migrate:
 	migrate -path ./migrations -database ${DSN} up
+
+migration:
+	migrate create -seq -dir ./migrations -ext .sql new_migration
+
 up:
 	docker compose up -d --build
+	
 down:
 	docker compose down
