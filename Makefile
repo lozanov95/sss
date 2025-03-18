@@ -6,7 +6,7 @@ migrate:
 	migrate -path ./migrations -database ${DSN} up
 
 migration:
-	migrate create -seq -dir ./migrations -ext .sql new_migration
+	migrate create -seq -dir ./migrations -ext .sql ${name}
 
 up:
 	docker compose up -d --build
